@@ -1,0 +1,19 @@
+{
+  "model_info": {
+    "name": "XGBoost (Tuned)",
+    "training_accuracy": 0.89,
+    "model_path": "best_model.pkl"
+  },
+  "validation_results": {
+    "validation_accuracy": 0.622,
+    "validation_f1_score": 0.6196861706623095,
+    "validation_precision": 0.625043047606553,
+    "validation_recall": 0.622,
+    "validation_samples": 500
+  },
+  "performance_thresholds": {
+    "min_accuracy": 0.55,
+    "min_f1_score": 0.55
+  },
+  "validation_status": "PASSED"
+}

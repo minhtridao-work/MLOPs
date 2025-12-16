@@ -1,0 +1,9 @@
+flask
+scikit-learn
+numpy
+joblib
+jinja2
+pytest
+pytest-cov
+xgboost
+requests

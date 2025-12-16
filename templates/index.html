@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MLOps Classification Model</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <style>
+        .feature-input {
+            margin-bottom: 10px;
+        }
+        .model-info {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .result-card {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <h1 class="text-center mb-4">MLOps Classification Model</h1>
+                
+                <!-- Model Information -->
+                {% if metadata %}
+                <div class="model-info">
+                    <h5>Current Model Information</h5>
+                    <p><strong>Model:</strong> {{ metadata.model_name }}</p>
+                    <p><strong>Accuracy:</strong> {{ "%.4f"|format(metadata.accuracy) }}</p>
+                    <p><strong>Features:</strong> 10 numerical features (automatically scaled)</p>
+                </div>
+                {% endif %}
+                
+                <!-- Prediction Form -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Make a Prediction</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="predict-form">
+                            <div class="mb-3">
+                                <label class="form-label">Enter 10 Features (comma-separated):</label>
+                                <input type="text" class="form-control" id="features" 
+                                       placeholder="1.5, -0.3, 2.1, 0.8, -1.2, 3.4, 0.5, -2.1, 1.8, 0.9">
+                                <small class="form-text text-muted">
+                                    Enter 10 numerical values separated by commas. Example: 1.5, -0.3, 2.1, 0.8, -1.2, 3.4, 0.5, -2.1, 1.8, 0.9
+                                </small>
+                            </div>
+                            
+                            <!-- Quick Examples -->
+                            <div class="mb-3">
+                                <label class="form-label">Quick Examples:</label><br>
+                                <button type="button" class="btn btn-outline-secondary btn-sm me-2" onclick="setExample('1.5, -0.3, 2.1, 0.8, -1.2, 3.4, 0.5, -2.1, 1.8, 0.9')">Example 1</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm me-2" onclick="setExample('-1.1, 2.3, 0.7, -2.5, 1.8, 0.2, -3.1, 1.4, 2.9, -0.6')">Example 2</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="generateRandom()">Random</button>
+                            </div>
+                            
+                            <button type="button" class="btn btn-primary" onclick="makePrediction()">
+                                Make Prediction
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Results -->
+                <div id="result" class="result-card"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function setExample(values) {
+            document.getElementById('features').value = values;
+        }
+        
+        function generateRandom() {
+            const randomFeatures = Array.from({length: 10}, () => 
+                (Math.random() * 4 - 2).toFixed(2)
+            );
+            document.getElementById('features').value = randomFeatures.join(', ');
+        }
+        
+        async function makePrediction() {
+            const featuresInput = document.getElementById('features').value.trim();
+            
+            if (!featuresInput) {
+                showResult('<div class="alert alert-danger">Please enter features.</div>');
+                return;
+            }
+            
+            const features = featuresInput.split(',').map(s => parseFloat(s.trim()));
+            
+            // Validate input
+            if (features.length !== 10) {
+                showResult('<div class="alert alert-danger">Please enter exactly 10 features.</div>');
+                return;
+            }
+            
+            if (features.some(isNaN)) {
+                showResult('<div class="alert alert-danger">All features must be valid numbers.</div>');
+                return;
+            }
+            
+            // Show loading
+            showResult('<div class="alert alert-info">Making prediction...</div>');
+            
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ features }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    const predictionClass = data.prediction;
+                    const prob0 = (data.probability.class_0 * 100).toFixed(2);
+                    const prob1 = (data.probability.class_1 * 100).toFixed(2);
+                    
+                    const resultHtml = `
+                        <div class="card">
+                            <div class="card-header bg-success text-white">
+                                <h5>Prediction Result</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6>Predicted Class:</h6>
+                                        <h3 class="text-primary">${predictionClass}</h3>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>Prediction Probabilities:</h6>
+                                        <div class="progress mb-2" style="height: 25px;">
+                                            <div class="progress-bar" role="progressbar" style="width: ${prob0}%">
+                                                Class 0: ${prob0}%
+                                            </div>
+                                        </div>
+                                        <div class="progress" style="height: 25px;">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: ${prob1}%">
+                                                Class 1: ${prob1}%
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+                                <small class="text-muted">
+                                    Model: ${data.model_info.model_name} | 
+                                    Accuracy: ${(data.model_info.accuracy * 100).toFixed(2)}%
+                                </small>
+                            </div>
+                        </div>
+                    `;
+                    showResult(resultHtml);
+                } else {
+                    showResult(`<div class="alert alert-danger">Error: ${data.error}</div>`);
+                }
+            } catch (error) {
+                showResult(`<div class="alert alert-danger">Network Error: ${error.message}</div>`);
+            }
+        }
+        
+        function showResult(html) {
+            document.getElementById('result').innerHTML = html;
+        }
+        
+        // Allow Enter key to submit
+        document.getElementById('features').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                makePrediction();
+            }
+        });
+    </script>
+</body>
+</html>

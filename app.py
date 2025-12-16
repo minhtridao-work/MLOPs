@@ -117,6 +117,6 @@ if __name__ == "__main__":
     # Load model and metadata on startup
     if load_model_and_metadata():
         print("Flask app starting...")
-        app.run(debug=True, host='0.0.0.0', port=5001)
+        app.run(debug=True, host='0.0.0.0', port=5000)
     else:
         print("Failed to load model. Please run train_model.py first.")

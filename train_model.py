@@ -72,7 +72,7 @@ def hyperparameter_tuning(model_class, param_grid, X_train, y_train, model_name)
 def main():
     print("=== MLOps Classification Project ===")
     
-    # Step 1: Generate and prepare data
+    # Generate and prepare data
     X, y = generate_data(n_samples=2000, augment=True)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
     
@@ -82,7 +82,7 @@ def main():
     # Dictionary to store model results
     model_results = {}
     
-    # Step 2: Train simple Logistic Regression
+    # Train Logistic Regression
     lr_model, lr_accuracy = train_and_evaluate_model(
         LogisticRegression(random_state=42),
         X_train, X_test, y_train, y_test,
@@ -93,7 +93,7 @@ def main():
         'accuracy': lr_accuracy
     }
     
-    # Step 3: Hyperparameter tuning for Logistic Regression
+    # Hyperparameter tuning for Logistic Regression
     lr_param_grid = {
         'C': [0.01, 0.1, 1, 10, 100],
         'solver': ['liblinear', 'lbfgs'],
@@ -116,7 +116,7 @@ def main():
         'accuracy': lr_tuned_accuracy
     }
     
-    # Step 4: Train Random Forest
+    # Train Random Forest
     rf_model, rf_accuracy = train_and_evaluate_model(
         RandomForestClassifier(random_state=42, n_estimators=100),
         X_train, X_test, y_train, y_test,
@@ -127,7 +127,7 @@ def main():
         'accuracy': rf_accuracy
     }
     
-    # Step 5: Hyperparameter tuning for Random Forest
+    # Hyperparameter tuning for Random Forest
     rf_param_grid = {
         'n_estimators': [50, 100, 150, 200],
         'max_depth': [5, 10, 15, 20, None],
@@ -150,7 +150,7 @@ def main():
         'accuracy': rf_tuned_accuracy
     }
     
-    # Step 6: Train XGBoost
+    # Train XGBoost
     xgb_model, xgb_accuracy = train_and_evaluate_model(
         XGBClassifier(random_state=42, eval_metric='logloss'),
         X_train, X_test, y_train, y_test,
@@ -161,7 +161,7 @@ def main():
         'accuracy': xgb_accuracy
     }
     
-    # Step 7: Hyperparameter tuning for XGBoost
+    # Hyperparameter tuning for XGBoost
     xgb_param_grid = {
         'n_estimators': [50, 100, 200],
         'max_depth': [3, 5, 9],
@@ -185,7 +185,7 @@ def main():
         'accuracy': xgb_tuned_accuracy
     }
     
-    # Step 8: Compare results and find best model
+    # Compare results and find best model
     print("\n=== Model Comparison ===")
     best_model_name = None
     best_accuracy = 0
@@ -198,7 +198,7 @@ def main():
     
     print(f"\nBest Model: {best_model_name} with accuracy: {best_accuracy:.4f}")
     
-    # Step 9: Save best model to model registry
+    # Save best model to model registry
     best_model = model_results[best_model_name]['model']
     model_path = "best_model.pkl"
     joblib.dump(best_model, model_path)

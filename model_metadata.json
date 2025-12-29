@@ -1,13 +1,11 @@
 {
-  "model_name": "XGBoost (Tuned)",
-  "accuracy": 0.8733333333333333,
+  "model_name": "XGBoost",
+  "accuracy": 0.946,
   "model_path": "best_model.pkl",
   "all_results": {
-    "Logistic Regression": 0.6983333333333334,
-    "Logistic Regression (Tuned)": 0.6983333333333334,
-    "Random Forest": 0.8416666666666667,
-    "Random Forest (Tuned)": 0.8416666666666667,
-    "XGBoost": 0.87,
-    "XGBoost (Tuned)": 0.8733333333333333
+    "Random Forest": 0.824,
+    "Random Forest (Tuned)": 0.9073333333333333,
+    "XGBoost": 0.946,
+    "XGBoost (Tuned)": 0.938
   }
 }
